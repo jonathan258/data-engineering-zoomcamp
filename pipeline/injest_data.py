@@ -77,15 +77,3 @@ def run(pg_user, pg_pass, pg_host, pg_db, pg_port, year, month, chunksize, targe
 
 if __name__ == '__main__':
     run()
-
-uv run python ingest_data.py \
-  --pg-user=root \
-  --pg-pass=root \
-  --pg-host=localhost \
-  --pg-port=5432 \
-  --pg-db=ny_taxi \
-  --target-table=yellow_taxi_trips_2021_1 \
-  --year=2021 \
-  --month=1 \
-  --chunksize=100000
-        
