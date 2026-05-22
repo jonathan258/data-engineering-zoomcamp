@@ -1,6 +1,7 @@
 import pandas as pd
 from sqlalchemy import create_engine
 from tqdm.auto import tqdm
+import click
 
 dtype = {
     "VendorID": "Int64",
@@ -26,18 +27,17 @@ parse_dates = [
     "tpep_dropoff_datetime"
 ]
 
-def run():
-
-    pg_user = 'root'
-    pg_pass = 'root'
-    pg_host = 'localhost'
-    pg_db = 'ny_taxi'
-    pg_port = 5432
-
-    year = 2021
-    month = 1
-
-    target_table = 'yellow_taxi_data'
+@click.command()
+@click.option('--pg-user', default='root', help='PostgreSQL user')
+@click.option('--pg-pass', default='root', help='PostgreSQL password')
+@click.option('--pg-host', default='localhost', help='PostgreSQL host')
+@click.option('--pg-db', default='ny_taxi', help='PostgreSQL database')
+@click.option('--pg-port', default=5432, type=int, help='PostgreSQL port')
+@click.option('--year', default=2021, type=int, help='Year for the data')
+@click.option('--month', default=1, type=int, help='Month for the data')
+@click.option('--chunksize', default=100000, type=int, help='Chunk size for reading CSV')
+@click.option('--target-table', default='yellow_taxi_data', help='Target table name')
+def run(pg_user, pg_pass, pg_host, pg_db, pg_port, year, month, chunksize, target_table):
 
     engine = create_engine(
         f'postgresql+psycopg://{pg_user}:{pg_pass}@{pg_host}:{pg_port}/{pg_db}'
@@ -45,7 +45,7 @@ def run():
 
     prefix = 'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/'
 
-    chunksize = 100000
+   
 
     df_iter = pd.read_csv(
         prefix + f'yellow_tripdata_{year}-{month:02d}.csv.gz',
@@ -77,3 +77,15 @@ def run():
 
 if __name__ == '__main__':
     run()
+
+uv run python ingest_data.py \
+  --pg-user=root \
+  --pg-pass=root \
+  --pg-host=localhost \
+  --pg-port=5432 \
+  --pg-db=ny_taxi \
+  --target-table=yellow_taxi_trips_2021_1 \
+  --year=2021 \
+  --month=1 \
+  --chunksize=100000
+        
